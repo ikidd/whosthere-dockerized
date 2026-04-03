@@ -44,6 +44,26 @@ docker compose build --build-arg WHOSTHERE_REF=v0.7.0
 docker compose up -d
 ```
 
+## Upgrading
+
+Whosthere is fetched **when the image is built**, not at container start. To move to a newer upstream release or the latest `main`:
+
+1. **Update this repo** (if you use git): `git pull` in your clone so you have any Dockerfile or Compose changes.
+2. **Rebuild without cache** so the builder stage re-clones upstream instead of reusing an old layer:
+
+   ```bash
+   docker compose build --no-cache
+   docker compose up -d
+   ```
+
+   If you use the **bridge** profile, add `--profile bridge` to both commands.
+
+3. **Optional**: remove the old image to free disk space after you are happy with the new one, for example `docker image prune` or `docker rmi` on the previous `whosthere-webtty:local` ID.
+
+If you **pin** a tag with `WHOSTHERE_REF`, bump it to the new tag (or set it back to `main` in `docker-compose.yml` / build args), then run the same `build --no-cache` and `up -d` steps.
+
+To refresh **ttyd** only, rebuild still pulls the latest `ghcr.io/tsl0922/ttyd:latest` used in the Dockerfile when that stage is not cached; use `--no-cache` if you want to force that as well.
+
 ## Upstream
 
 - **Whosthere**: [github.com/ramonvermeulen/whosthere](https://github.com/ramonvermeulen/whosthere) — features, CLI/TUI usage, configuration, and disclaimer apply to the application itself.
