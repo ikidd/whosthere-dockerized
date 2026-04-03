@@ -1,0 +1,26 @@
+x-whosthere-app: &whosthere-app
+  build:
+    context: .
+    dockerfile: Dockerfile
+    args:
+      WHOSTHERE_REF: main
+  image: whosthere-webtty:local
+  environment:
+    TERM: xterm-256color
+  restart: unless-stopped
+
+services:
+  # Default: host network for real LAN discovery (Linux).
+  whosthere-webtty:
+    <<: *whosthere-app
+    container_name: whosthere-webtty
+    network_mode: host
+
+  # Optional: docker compose --profile bridge up --build
+  # Publishes port 7681; mDNS/ARP may not see your physical LAN.
+  whosthere-webtty-bridge:
+    <<: *whosthere-app
+    profiles: [bridge]
+    container_name: whosthere-webtty-bridge
+    ports:
+      - "7681:7681"
